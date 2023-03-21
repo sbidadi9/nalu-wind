@@ -97,12 +97,8 @@ SDRSSTNodeKernel::execute(
       Pk += dudxij * (dudxij + dudx_.get(node, j * nDim_ + i));
     }
   }
-  Pk *= tvisc;
 
   const DblType Dk = betaStar_ * density * sdr * tke;
-
-  // Clip production term and clip negative productions
-  Pk = stk::math::min(tkeProdLimitRatio_ * Dk, stk::math::max(Pk, 0.0));
 
   // Blend constants for SDR
   const DblType omf1 = (1.0 - fOneBlend);
@@ -142,7 +138,7 @@ SDRSSTNodeKernel::execute(
   const DblType gamma = fOneBlend * gammaOne_apply + omf1 * gammaTwo_apply;
 
   // Production term with appropriate clipping of tvisc
-  const DblType Pw = gamma * density * Pk / stk::math::max(tvisc, 1.0e-16);
+  const DblType Pw = gamma * density * Pk * Pk;
   const DblType Dw = beta * density * sdr * sdr;
   const DblType Sw = sigmaD * density * crossDiff / sdr;
 

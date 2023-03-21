@@ -90,7 +90,6 @@ SDRSSTDESNodeKernel::execute(
       Pk += dudxij * (dudxij + dudx_.get(node, j * nDim_ + i));
     }
   }
-  Pk *= tvisc;
 
   // Blend constants for SDR
   const DblType omf1 = (1.0 - fOneBlend);
@@ -108,11 +107,7 @@ SDRSSTDESNodeKernel::execute(
   const DblType Dk =
     density * stk::math::sqrt(tke) * tke / stk::math::max(eddyLengthDES, small);
 
-  // Clip production term
-  Pk = stk::math::min(tkeProdLimitRatio_ * Dk, Pk);
-
-  // Production term with appropriate clipping of tvisc
-  const DblType Pw = gamma * density * Pk / stk::math::max(tvisc, small);
+  const DblType Pw = gamma * density * Pk * Pk;
   const DblType Dw = beta * density * sdr * sdr;
   const DblType Sw = sigmaD * density * crossDiff / sdr;
 
